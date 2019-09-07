@@ -75,3 +75,20 @@ query {
     }
   }
 }
+
+query {
+  Patient(identifier: "223487984|12340237") {
+    name {
+      given
+      family
+    }
+  }
+  AllergyIntolerance(patient: { identifier: "223487984|12340237" }) {
+    id
+    reaction {
+      substance {
+        text
+      }
+    }
+  }
+}

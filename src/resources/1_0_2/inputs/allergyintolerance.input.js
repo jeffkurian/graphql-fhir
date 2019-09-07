@@ -109,7 +109,7 @@ module.exports = new GraphQLInputObjectType({
 				'Individual who recorded the record and takes responsibility for its conten.',
 		},
 		patient: {
-			type: require('../inputs/identifier.input'),
+			type: require('../inputs/referenceidentifier.input'),
 			description: 'The patient who has the allergy or intolerance.',
 		},
 		reporter: {
