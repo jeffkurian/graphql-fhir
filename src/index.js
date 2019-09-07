@@ -6,7 +6,7 @@ require('./environment.js');
 
 // Start buliding our server
 let server = new FHIRServer(SERVER_CONFIG)
-	.initializeDatabaseConnection()
+	//	.initializeDatabaseConnection()
 	.configureMiddleware()
 	.configurePassport()
 	.configureHelmet()
@@ -14,5 +14,14 @@ let server = new FHIRServer(SERVER_CONFIG)
 	.setProfileRoutes()
 	.setErrorRoutes();
 
-server.listen(SERVER_CONFIG.port);
-server.logger.info('FHIR Server listening on localhost:' + SERVER_CONFIG.port);
+server
+	.initializeRestDataSources()
+	.then(() => {
+		server.listen(SERVER_CONFIG.port);
+		server.logger.info(
+			'FHIR Server listening on localhost:' + SERVER_CONFIG.port,
+		);
+	})
+	.catch(err => {
+		server.logger.error('Fatal Error connecting to Orion.', err);
+	});

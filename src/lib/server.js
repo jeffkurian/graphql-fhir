@@ -13,6 +13,7 @@ const helmet = require('helmet');
 const https = require('https');
 const http = require('http');
 const fs = require('fs');
+var session = require('express-session');
 
 class Server {
 	constructor(config = {}) {
@@ -35,6 +36,20 @@ class Server {
 		return this;
 	}
 
+	initializeRestDataSources(options = {}) {
+		// Connecting to Mongo is async
+		// Let's handle this with a promise
+		return new Promise((resolve, reject) => {
+			var orionDataSource = require('../datasources/orionfhirdatasource');
+
+			if (orionDataSource) {
+				this.orionDataSource = orionDataSource;
+				return resolve();
+			} else {
+				return reject();
+			}
+		});
+	}
 	// Initialize a database connection
 	// eslint-disable-next-line no-unused-vars
 	initializeDatabaseConnection(options = {}) {
@@ -65,6 +80,14 @@ class Server {
 		// Enable the body parser
 		this.app.use(bodyParser.urlencoded({ extended: true }));
 		this.app.use(bodyParser.json());
+
+		this.configureSession(
+			session({
+				secret: 'secret',
+				resave: 'false',
+				saveUninitialized: 'false',
+			}),
+		);
 		// return self for chaining
 		return this;
 	}
@@ -120,10 +143,10 @@ class Server {
 	}
 
 	// enable health check
-	enableHealthCheck () {
+	enableHealthCheck() {
 		// just send a simple 200 response for healthcheck
 		this.app.use('/healthcheck', (_req, res) =>
-			res.status(200).json({ uptime: process.uptime() })
+			res.status(200).json({ uptime: process.uptime() }),
 		);
 		// return self for chaining
 		return this;

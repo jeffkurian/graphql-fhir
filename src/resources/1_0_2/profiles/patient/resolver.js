@@ -1,3 +1,6 @@
+const errorUtils = require('../../../../utils/error.utils');
+var config = require('../../../../datasources/config.json');
+
 /**
  * @name exports.getPatient
  * @static
@@ -10,7 +13,28 @@ module.exports.getPatient = function getPatient(
 	info,
 ) {
 	let { server, version, req, res } = context;
-	return {};
+	let logger = context.server.logger;
+
+	return new Promise(async (resolve, reject) => {
+		try {
+			reqOpts = { uri: '/Patient' };
+			var { entry } = await context.server.orionDataSource.invokeOrionFhirAPI(
+				req,
+				reqOpts,
+				args,
+			);
+
+			var patient = {};
+			if (entry) {
+				patient = entry[0].resource;
+			}
+			resolve(patient);
+		} catch (err) {
+			logger.error(err);
+			let error = errorUtils.internal(version, err.message);
+			reject(errorUtils.formatErrorForGraphQL(error));
+		}
+	});
 };
 
 /**
@@ -25,7 +49,23 @@ module.exports.getPatientList = function getPatientList(
 	info,
 ) {
 	let { server, version, req, res } = context;
-	return {};
+	let logger = context.server.logger;
+
+	return new Promise(async (resolve, reject) => {
+		try {
+			reqOpts = { uri: '/Patient' };
+			var data = await context.server.orionDataSource.invokeOrionFhirAPI(
+				req,
+				reqOpts,
+				args,
+			);
+			resolve(data);
+		} catch (err) {
+			logger.error(err);
+			let error = errorUtils.internal(version, err.message);
+			reject(errorUtils.formatErrorForGraphQL(error));
+		}
+	});
 };
 
 /**

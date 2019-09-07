@@ -1,0 +1,9 @@
+{
+	"clientId": "pfA1g9UETgGkyMQVhAAe4LUG9WTJxOva",
+	"clientSecret": "fxRS2b5cAAxILzGX",
+	"tokenUri": "https://orionhealth-hbc-dev.apigee.net/oauth2/token",
+	"baseUrl": "https://hbcintapi.orionhealthcloud.com/fhir/1.0/",
+	"defaultusername": "hzn.api.level7b",
+	"defaultpassword": "sQgIY4f$Mu6eoaO#",
+	"hznPatientNS": "223487984|"
+}

@@ -60,7 +60,7 @@ module.exports = {
 	},
 	// http://hl7.org/fhir/SearchParameter/AllergyIntolerance-patient
 	patient: {
-		type: GraphQLString,
+		type: require('../inputs/referenceidentifier.input'),
 		fhirtype: 'reference',
 		xpath: 'AllergyIntolerance.patient',
 		description: 'Who the sensitivity is for',

@@ -1,3 +1,5 @@
+const errorUtils = require('../../../../utils/error.utils');
+var config = require('../../../../datasources/config.json');
 /**
  * @name exports.getAllergyIntolerance
  * @static
@@ -10,7 +12,28 @@ module.exports.getAllergyIntolerance = function getAllergyIntolerance(
 	info,
 ) {
 	let { server, version, req, res } = context;
-	return {};
+	let logger = context.server.logger;
+
+	return new Promise(async (resolve, reject) => {
+		try {
+			reqOpts = { uri: '/AllergyIntolerance' };
+			var { entry } = await context.server.orionDataSource.invokeOrionFhirAPI(
+				req,
+				reqOpts,
+				args,
+			);
+
+			var allergyIntolerance = {};
+			if (entry) {
+				allergyIntolerance = entry[0].resource;
+			}
+			resolve(allergyIntolerance);
+		} catch (err) {
+			logger.error(err);
+			let error = errorUtils.internal(version, err.message);
+			reject(errorUtils.formatErrorForGraphQL(error));
+		}
+	});
 };
 
 /**
@@ -25,7 +48,25 @@ module.exports.getAllergyIntoleranceList = function getAllergyIntoleranceList(
 	info,
 ) {
 	let { server, version, req, res } = context;
-	return {};
+	let logger = context.server.logger;
+
+	return new Promise((resolve, reject) => {
+		(async () => {
+			try {
+				reqOpts = { uri: '/AllergyIntolerance' };
+				var data = await context.server.orionDataSource.invokeOrionFhirAPI(
+					req,
+					reqOpts,
+					args,
+				);
+				resolve(data);
+			} catch (err) {
+				logger.error(err);
+				let error = errorUtils.internal(version, err);
+				reject(errorUtils.formatErrorForGraphQL(error));
+			}
+		})();
+	});
 };
 
 /**
