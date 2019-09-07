@@ -36,14 +36,15 @@ class Server {
 		return this;
 	}
 
-	initializeRestDataSources(options = {}) {
+	initializeRestDataSources(session) {
 		// Connecting to Mongo is async
 		// Let's handle this with a promise
 		return new Promise((resolve, reject) => {
-			var orionDataSource = require('../datasources/orionfhirdatasource');
+			var orionFHIRDataSource = require('../datasources/orionfhirdatasource');
 
-			if (orionDataSource) {
-				this.orionDataSource = orionDataSource;
+			if (orionFHIRDataSource) {
+				orionFHIRDataSource.initOrionToken(session);
+				this.orionDataSource = orionFHIRDataSource;
 				return resolve();
 			} else {
 				return reject();
@@ -80,7 +81,6 @@ class Server {
 		// Enable the body parser
 		this.app.use(bodyParser.urlencoded({ extended: true }));
 		this.app.use(bodyParser.json());
-
 		this.configureSession(
 			session({
 				secret: 'secret',
@@ -88,6 +88,7 @@ class Server {
 				saveUninitialized: 'false',
 			}),
 		);
+		this.initializeRestDataSources(session);
 		// return self for chaining
 		return this;
 	}

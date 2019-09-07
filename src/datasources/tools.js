@@ -31,8 +31,17 @@ var Tools = function() {
 	// and the API call should be tried again.
 	this.checkForUnauthorized = function(req, requestObj, err, response) {
 		return new Promise(async function(resolve, reject) {
-			if (response.statusCode == 401) {
-				logger.info('Received a 401 response!  Trying to refresh tokens.');
+			logger.info(
+				'The 1st response response.statusCode = ' + response.statusCode,
+			);
+			logger.info(
+				'The 1st response response.body.error = ' + response.body.error,
+			);
+			if (
+				response.statusCode === 400 &&
+				response.body.error === 'invalid_grant'
+			) {
+				logger.info('Received a 400 response!  Trying to refresh tokens.');
 
 				try {
 					// Refresh the tokens
@@ -46,7 +55,10 @@ var Tools = function() {
 						resolve({ err, response });
 					});
 				} catch (err) {
-					// No 401, continue!
+					//Still error.   need to check
+					logger.info(
+						'OH OH - Seems like the refresh token is invalid,   need to check for that',
+					);
 					logger.error(err);
 					resolve({ err, response });
 				}
@@ -57,11 +69,11 @@ var Tools = function() {
 		});
 	};
 
-	// Refresh Token should be called if access token expires, or if Intuit
-	// returns a 401 Unauthorized.
+	// Refresh Token should be called if access token expires, or
+	// returns a 401 Unauthorized
 	this.refreshTokens = function(session) {
 		var token = this.getToken(session);
-
+		logger.info('Refresh the tokens');
 		// Call refresh API
 		return token.refresh().then(function(newToken) {
 			// Store the new tokens
@@ -77,7 +89,7 @@ var Tools = function() {
 				new Error('Nil Token passed for refreshTokensWithToken'),
 			);
 		}
-
+		logger.info('Refreshing the token with the existing refresh token');
 		request(
 			{
 				url: config.tokenHost,
@@ -95,10 +107,11 @@ var Tools = function() {
 			},
 			function(err, response) {
 				if (err) {
-					logger.error(err);
+					logger.error('Refreshing the token failed ', err);
 					return err;
 				}
 
+				logger.info('Got new token and storing in session');
 				var json = JSON.parse(response.body);
 				return tools.oauth2Client.createToken(
 					json.access_token,
