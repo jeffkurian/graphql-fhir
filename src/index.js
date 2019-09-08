@@ -5,8 +5,8 @@ const FHIRServer = require('./lib/server.js');
 require('./environment.js');
 
 // Start buliding our server
-let server = new FHIRServer(SERVER_CONFIG)
-	//	.initializeDatabaseConnection()
+let server = new FHIRServer(SERVER_CONFIG) //	.initializeDatabaseConnection()
+	.initializeRestDataSources()
 	.configureMiddleware()
 	.configurePassport()
 	.configureHelmet()

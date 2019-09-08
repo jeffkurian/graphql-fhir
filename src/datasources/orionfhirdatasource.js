@@ -20,7 +20,20 @@ var OrionFHIRDataSource = function() {
 	};
 
 	this.initOrionToken = function(session) {
-		tools.getToken(session);
+		return new Promise(async function(resolve, reject) {
+			try {
+				var token = await tools.getToken(session);
+				// check whether the token is in session or will expire in the next 20 seconds
+				if (!token || Date.now() > token.expires.getTime() - 2000) {
+					logger.info('Getting new token');
+					token = await tools.getOwnerToken(session);
+				}
+				resolve(token);
+				return;
+			} catch (err) {
+				reject(err);
+			}
+		});
 	};
 
 	this.invokeOrionFhirAPI = function(req, reqOpts, fhirQuery) {
@@ -28,7 +41,8 @@ var OrionFHIRDataSource = function() {
 			try {
 				var token = tools.getToken(req.session);
 
-				if (!token) {
+				// check whether the token is in session or will expire in the next 20 seconds
+				if (!token || Date.now() > token.expires.getTime() - 2000) {
 					logger.info('Getting new token');
 					token = await tools.getOwnerToken(req.session);
 				}

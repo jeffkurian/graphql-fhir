@@ -36,20 +36,14 @@ class Server {
 		return this;
 	}
 
-	initializeRestDataSources(session) {
-		// Connecting to Mongo is async
-		// Let's handle this with a promise
-		return new Promise((resolve, reject) => {
-			var orionFHIRDataSource = require('../datasources/orionfhirdatasource');
+	initializeRestDataSources() {
+		var orionFHIRDataSource = require('../datasources/orionfhirdatasource');
 
-			if (orionFHIRDataSource) {
-				orionFHIRDataSource.initOrionToken(session);
-				this.orionDataSource = orionFHIRDataSource;
-				return resolve();
-			} else {
-				return reject();
-			}
-		});
+		if (orionFHIRDataSource) {
+			this.orionDataSource = orionFHIRDataSource;
+		}
+
+		return this;
 	}
 	// Initialize a database connection
 	// eslint-disable-next-line no-unused-vars
@@ -88,7 +82,6 @@ class Server {
 				saveUninitialized: 'false',
 			}),
 		);
-		this.initializeRestDataSources(session);
 		// return self for chaining
 		return this;
 	}

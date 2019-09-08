@@ -1,4 +1,5 @@
 const authenticationMiddleware = require('../middleware/authentication.middleware');
+const orionMiddleware = require('../middleware/orion.middleware');
 const { resolveFromVersion } = require('./resolve.utils');
 const expressGraphql = require('express-graphql');
 const errorUtils = require('./error.utils');
@@ -115,8 +116,11 @@ function configureRoutes(server, options = {}) {
 					// Path for this graphql endpoint
 					path.posix.join(instance_path, '([$])graphql'),
 					// Add our validation middlware
-					authenticationMiddleware(server),
-					// middleware wrapper for Graphql Express
+					[
+						authenticationMiddleware(server),
+						// middleware wrapper for Graphql Express
+						orionMiddleware(server),
+					],
 					setupGraphqlServer(server, version, {
 						formatError: graphqlErrorFormatter(server.logger, version),
 						schema: generateInstanceSchema(version, name, query),
@@ -133,7 +137,7 @@ function configureRoutes(server, options = {}) {
 			// Path for this graphql endpoint
 			`/${version}/([\$])graphql`,
 			// Add our validation middlware
-			authenticationMiddleware(server),
+			[authenticationMiddleware(server), orionMiddleware(server)],
 			// middleware wrapper for Graphql Express
 			setupGraphqlServer(server, version, {
 				formatError: graphqlErrorFormatter(server.logger, version),
@@ -147,6 +151,7 @@ function configureRoutes(server, options = {}) {
 				// Path for this graphiql endpoint
 				`/${version}/([\$])graphiql`,
 				// middleware wrapper for Graphql Express
+				orionMiddleware(server),
 				setupGraphqlServer(server, version, {
 					formatError: graphqlErrorFormatter(server.logger, version),
 					schema: rootSchema,
